@@ -34,6 +34,8 @@ type IntegrationForm struct {
 	PocketEnabled        bool
 	PocketAccessToken    string
 	PocketConsumerKey    string
+	TelegramToken        string
+	TelegramChatId       int64
 }
 
 // Merge copy form values to the model.
