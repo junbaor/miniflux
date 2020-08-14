@@ -69,7 +69,10 @@ func (s *Storage) Integration(userID int64) (*model.Integration, error) {
 			nunux_keeper_api_key,
 			pocket_enabled,
 			pocket_access_token,
-			pocket_consumer_key
+			pocket_consumer_key,
+			telegram_enabled,
+			telegram_token,
+			telegram_chat_id
 		FROM
 			integrations
 		WHERE
@@ -101,6 +104,9 @@ func (s *Storage) Integration(userID int64) (*model.Integration, error) {
 		&integration.PocketEnabled,
 		&integration.PocketAccessToken,
 		&integration.PocketConsumerKey,
+		&integration.TelegramEnabled,
+		&integration.TelegramToken,
+		&integration.TelegramChatId,
 	)
 	switch {
 	case err == sql.ErrNoRows:
