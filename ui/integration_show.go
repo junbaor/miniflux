@@ -51,6 +51,7 @@ func (h *handler) showIntegrationPage(w http.ResponseWriter, r *http.Request) {
 		PocketEnabled:        integration.PocketEnabled,
 		PocketAccessToken:    integration.PocketAccessToken,
 		PocketConsumerKey:    integration.PocketConsumerKey,
+		TelegramEnabled:      integration.TelegramEnabled,
 		TelegramToken:        integration.TelegramToken,
 		TelegramChatId:       integration.TelegramChatId,
 	}

@@ -30,6 +30,7 @@ type Integration struct {
 	PocketEnabled        bool
 	PocketAccessToken    string
 	PocketConsumerKey    string
+	TelegramEnabled      bool
 	TelegramToken        string
 	TelegramChatId       int64
 }
