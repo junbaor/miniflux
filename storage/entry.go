@@ -196,9 +196,6 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 			}
 		} else {
 			err = s.createEntry(entry)
-
-			tempText := fmt.Sprintf("%v. [%v](%v)", len(markdownMsg)+1, entry.Title, entry.URL)
-			markdownMsg = append(markdownMsg, tempText)
 		}
 
 		if err != nil {
@@ -206,6 +203,8 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 		}
 
 		entryHashes = append(entryHashes, entry.Hash)
+		tempText := fmt.Sprintf("%v. [%v](%v)", len(markdownMsg)+1, entry.Title, entry.URL)
+		markdownMsg = append(markdownMsg, tempText)
 	}
 
 	// 新增 查询用户关联的 telegram bot 和收件人
