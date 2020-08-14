@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"net/http"
 	"strings"
 	"time"
 
@@ -185,7 +186,7 @@ func (s *Storage) cleanupEntries(feedID int64, entryHashes []string) error {
 // UpdateEntries updates a list of entries while refreshing a feed.
 func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, updateExistingEntries bool) (err error) {
 	var entryHashes []string
-	var markdownMsg []string
+	var telegramItemMsg []string
 	for _, entry := range entries {
 		entry.UserID = userID
 		entry.FeedID = feedID
@@ -203,27 +204,27 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 		}
 
 		entryHashes = append(entryHashes, entry.Hash)
-		tempText := fmt.Sprintf("%v. [%v](%v)", len(markdownMsg)+1, entry.Title, entry.URL)
-		markdownMsg = append(markdownMsg, tempText)
+
+		tempText := fmt.Sprintf("%v. [%v](%v)", len(telegramItemMsg)+1, entry.Title, entry.URL)
+		telegramItemMsg = append(telegramItemMsg, tempText)
 	}
 
-	// 新增 查询用户关联的 telegram bot 和收件人
-	integration, err := s.Integration(userID)
-	if err == nil && integration != nil {
-		fmt.Print(integration.FeverToken)
-	}
-
-	var token = ""
-	var chatId int64 = 154401847
-
-	feed, _ := s.FeedByID(userID, feedID)
-	bot, err := tgbotapi.NewBotAPI(token)
-	if bot != nil && len(markdownMsg) > 0 {
-		text := fmt.Sprintf("**%v**\n\n", feed.Title) + strings.Join(markdownMsg, "\n")
-		message := tgbotapi.NewMessage(chatId, text)
-		message.DisableWebPagePreview = true
-		message.ParseMode = "markdown"
-		bot.Send(message)
+	if len(telegramItemMsg) > 0 {
+		integration, _ := s.Integration(userID)
+		if integration != nil && len(integration.TelegramToken) > 0 {
+			feed, _ := s.FeedByID(userID, feedID)
+			bot, _ := tgbotapi.NewBotAPIWithClient(integration.TelegramToken, &http.Client{Timeout: 15 * time.Second})
+			if bot != nil {
+				text := fmt.Sprintf("**%v**\n\n", feed.Title) + strings.Join(telegramItemMsg, "\n")
+				message := tgbotapi.NewMessage(integration.TelegramChatId, text)
+				message.DisableWebPagePreview = true
+				message.ParseMode = "markdown"
+				_, err = bot.Send(message)
+				if err != nil {
+					logger.Error(`telegram: send msg error%v`, feedID, err)
+				}
+			}
+		}
 	}
 
 	if err := s.cleanupEntries(feedID, entryHashes); err != nil {
