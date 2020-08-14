@@ -193,6 +193,13 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 			}
 		} else {
 			err = s.createEntry(entry)
+
+			// 新增 查询用户关联的 telegram bot 和收件人
+			integration, err := s.Integration(userID)
+			if err == nil && integration != nil {
+				fmt.Print(integration.FeverToken)
+			}
+
 		}
 
 		if err != nil {
