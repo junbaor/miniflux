@@ -209,6 +209,16 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 		telegramItemMsg = append(telegramItemMsg, tempText)
 	}
 
+	sendTelegramMsg(userID, feedID, telegramItemMsg, s)
+
+	if err := s.cleanupEntries(feedID, entryHashes); err != nil {
+		logger.Error(`store: feed #%d: %v`, feedID, err)
+	}
+
+	return nil
+}
+
+func sendTelegramMsg(userID int64, feedID int64, telegramItemMsg []string, s *Storage) {
 	if len(telegramItemMsg) > 0 {
 		integration, _ := s.Integration(userID)
 		if integration != nil && len(integration.TelegramToken) > 0 {
@@ -219,19 +229,13 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 				message := tgbotapi.NewMessage(integration.TelegramChatId, text)
 				message.DisableWebPagePreview = true
 				message.ParseMode = "markdown"
-				_, err = bot.Send(message)
+				_, err := bot.Send(message)
 				if err != nil {
 					logger.Error(`telegram: send msg error%v`, feedID, err)
 				}
 			}
 		}
 	}
-
-	if err := s.cleanupEntries(feedID, entryHashes); err != nil {
-		logger.Error(`store: feed #%d: %v`, feedID, err)
-	}
-
-	return nil
 }
 
 // ArchiveEntries changes the status of read items to "removed" after specified days.
