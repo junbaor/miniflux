@@ -146,9 +146,12 @@ func (s *Storage) UpdateIntegration(integration *model.Integration) error {
 			nunux_keeper_api_key=$20,
 			pocket_enabled=$21,
 			pocket_access_token=$22,
-			pocket_consumer_key=$23
+			pocket_consumer_key=$23,
+			telegram_enabled=$24,
+			telegram_token=$25,
+			telegram_chat_id=$26
 		WHERE
-			user_id=$24
+			user_id=$27
 	`
 	_, err := s.db.Exec(
 		query,
@@ -175,6 +178,9 @@ func (s *Storage) UpdateIntegration(integration *model.Integration) error {
 		integration.PocketEnabled,
 		integration.PocketAccessToken,
 		integration.PocketConsumerKey,
+		integration.TelegramEnabled,
+		integration.TelegramToken,
+		integration.TelegramChatId,
 		integration.UserID,
 	)
 
