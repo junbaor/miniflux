@@ -9,6 +9,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -226,7 +227,8 @@ func sendTelegramMsg(userID int64, feedID int64, telegramItemMsg []string, s *St
 			bot, _ := tgbotapi.NewBotAPIWithClient(integration.TelegramToken, &http.Client{Timeout: 15 * time.Second})
 			if bot != nil {
 				text := fmt.Sprintf("**%v**\n\n", feed.Title) + strings.Join(telegramItemMsg, "\n")
-				message := tgbotapi.NewMessage(integration.TelegramChatId, text)
+				chatId, _ := strconv.ParseInt(integration.TelegramChatId, 10, 64)
+				message := tgbotapi.NewMessage(chatId, text)
 				message.DisableWebPagePreview = true
 				message.ParseMode = "markdown"
 				_, err := bot.Send(message)
