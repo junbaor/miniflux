@@ -7,6 +7,8 @@ package storage // import "miniflux.app/storage"
 import (
 	"errors"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"strings"
 	"time"
 
 	"miniflux.app/crypto"
@@ -183,6 +185,7 @@ func (s *Storage) cleanupEntries(feedID int64, entryHashes []string) error {
 // UpdateEntries updates a list of entries while refreshing a feed.
 func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, updateExistingEntries bool) (err error) {
 	var entryHashes []string
+	var markdownMsg []string
 	for _, entry := range entries {
 		entry.UserID = userID
 		entry.FeedID = feedID
@@ -194,12 +197,8 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 		} else {
 			err = s.createEntry(entry)
 
-			// 新增 查询用户关联的 telegram bot 和收件人
-			integration, err := s.Integration(userID)
-			if err == nil && integration != nil {
-				fmt.Print(integration.FeverToken)
-			}
-
+			tempText := fmt.Sprintf("%v. [%v](%v)", len(markdownMsg)+1, entry.Title, entry.URL)
+			markdownMsg = append(markdownMsg, tempText)
 		}
 
 		if err != nil {
@@ -207,6 +206,25 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 		}
 
 		entryHashes = append(entryHashes, entry.Hash)
+	}
+
+	// 新增 查询用户关联的 telegram bot 和收件人
+	integration, err := s.Integration(userID)
+	if err == nil && integration != nil {
+		fmt.Print(integration.FeverToken)
+	}
+
+	var token = ""
+	var chatId int64 = 154401847
+
+	feed, _ := s.FeedByID(userID, feedID)
+	bot, err := tgbotapi.NewBotAPI(token)
+	if bot != nil && len(markdownMsg) > 0 {
+		text := fmt.Sprintf("**%v**\n\n", feed.Title) + strings.Join(markdownMsg, "\n")
+		message := tgbotapi.NewMessage(chatId, text)
+		message.DisableWebPagePreview = true
+		message.ParseMode = "markdown"
+		bot.Send(message)
 	}
 
 	if err := s.cleanupEntries(feedID, entryHashes); err != nil {
