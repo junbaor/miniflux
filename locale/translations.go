@@ -3636,6 +3636,9 @@ var translations = map[string]string{
     "form.integration.nunux_keeper_activate": "保存文章到 Nunux Keeper",
     "form.integration.nunux_keeper_endpoint": "Nunux Keeper API Endpoint",
     "form.integration.nunux_keeper_api_key": "Nunux Keeper API 密钥",
+    "form.integration.telegram_activate": "启用 Telegram",
+    "form.integration.telegram_token": "Telegram Bot Token",
+    "form.integration.telegram_chat_id": "Telegram ChatId",
     "form.api_key.label.description": "API密钥标签",
     "form.submit.loading": "载入中…",
     "form.submit.saving": "保存中…",
@@ -3694,5 +3697,5 @@ var translationsChecksums = map[string]string{
 	"pl_PL": "b1526955641823708b4c1ca753b61e1e0561d0a3d33da3f62170540903031b0d",
 	"pt_BR": "cf8e131d39daac82d3157c6538c0643392a06358b7bc98be8579412ebd63f60e",
 	"ru_RU": "4056e4e94861835d44064273371adbbded7190e2b719769886eb99e6c9feaf82",
-	"zh_CN": "044abb0a34eee3d8d5597811d40166762311b8e4cd08b891796113790cc775f0",
+	"zh_CN": "636702cce5b21d233415c71caef2c9893a0bf558504183b777cfb8b79db1ba05",
 }
