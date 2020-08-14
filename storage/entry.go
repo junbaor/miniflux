@@ -222,7 +222,7 @@ func (s *Storage) UpdateEntries(userID, feedID int64, entries model.Entries, upd
 func sendTelegramMsg(userID int64, feedID int64, telegramItemMsg []string, s *Storage) {
 	if len(telegramItemMsg) > 0 {
 		integration, _ := s.Integration(userID)
-		if integration != nil && len(integration.TelegramToken) > 0 {
+		if integration != nil && integration.TelegramEnabled && len(integration.TelegramToken) > 0 {
 			feed, _ := s.FeedByID(userID, feedID)
 			bot, _ := tgbotapi.NewBotAPIWithClient(integration.TelegramToken, &http.Client{Timeout: 15 * time.Second})
 			if bot != nil {
